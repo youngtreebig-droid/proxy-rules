@@ -1,29 +1,47 @@
-# proxy-rules（分流规则，不含节点）
+# proxy-rules
 
-只放规则，不放节点、不放任何订阅地址。用法和 Loyalsoldier、blackmatrix7 的规则一样：**先订阅你自己的节点，再把规则套上去**，规则只按分组名/节点名引用，不需要改任何 URL。
+只放分流配置，不含节点、密码、控制面板密钥和节点订阅地址。先在客户端添加节点订阅，再应用本仓库配置。
+
+## 当前策略
+
+| 流量 | 策略 |
+|---|---|
+| 内网、群晖、QuickConnect | DIRECT |
+| 国际 AI 网站、API、资源域名 | 🤖 AI → 🇩🇪 德国节点 |
+| Netflix、Disney、YouTube 等 | 🎬 流媒体，默认香港上海电信 |
+| 广告名单 | REJECT |
+| 国内域名及中国 IP | DIRECT |
+| 其余未匹配流量 | 🚀 节点选择 → 🇭🇰 上海电信 |
+
+AI 和默认出口分别只引用德国组、香港上海电信组，避免之前保存的墨西哥等选择继续生效。香港上海电信组仅在匹配的上海电信香港节点之间测速；自动测速组保留作排障用途，不参与默认出口选择。
+
+节点名至少各有一个能匹配 `德国|法兰克福|Germany|Frankfurt` 和 `(香港|Hong Kong|HK).*上海电信`。更换机场或节点名后必须检查匹配结果。需要更换 AI 地区时明确修改 AI 组。
 
 ## 文件
 
-| 文件 | 客户端 | 用法 |
-|---|---|---|
-| `clash-rules.yaml` | Clash Verge / mihomo / Nikki | 这是**覆写文件**，不是独立订阅：先在客户端导入你自己的节点订阅，再把本文件内容粘贴到「全局扩展配置」（Clash Verge）或 mixin（Nikki）里。分组用 `include-all-proxies` 自动纳入当前订阅的全部节点 |
-| `shadowrocket-rules.conf` | Shadowrocket | 在「配置」里导入并启用；前提是 SR 里已添加你的节点订阅。本文件用 `policy-regex-filter` 按节点名特征（如「上海电信」「南京移动」「法兰克福」）自动匹配订阅里的节点 |
+- `clash-rules.yaml`：支持 MRS 的 mihomo/Nikki 覆写文件，不是独立订阅，不适用于旧版 Clash 内核。
+- `nikki-dns.yaml`：与上述配置合并使用。国外 DNS 经默认代理，节点和直连连接使用国内 DoH；包含域名嗅探。
+- `shadowrocket-rules.conf`：Shadowrocket 配置。国际 AI 分类为 2026-11-03 快照，随本配置更新；广告及国内域名列表由客户端远程刷新。
+- `ai-extra.txt`：人工补充域名；修改后同步到两个客户端配置。
+- `validate_rules.py`：检查出口约束、规则引用、补充域名同步和公共来源可访问性。
 
-唯一的例外：`clash-rules.yaml` 的 🤖 AI 组为了保证默认走德国，按名字列了 5 个节点；换节点时改那几行名字即可，其余分组全部自动纳入、不用动。
+## Nikki 部署
 
-## 分组
+1. 备份 `/etc/config/nikki`、mixin 和运行配置；备份留在路由器，不能上传仓库。
+2. 合并 `clash-rules.yaml`、`nikki-dns.yaml` 至 mixin，保留本机 Tailscale 等专用规则和监听器。
+3. LuCI 启用 DNS 上游覆写及域名嗅探。局域网访问控制中的 DNS 必须开启；顶层 DNS 劫持开关不能覆盖一条显式 DNS 绕过规则。
+4. LuCI 设置优先于 mixin，检查最终生成配置。节点和直连解析使用国内 DoH；普通国外查询使用经过 `🚀 节点选择` 的 DoH。删除旧的国外直连 DNS 策略。
+5. 运行 `mihomo -t` 校验后启动。订阅优先本地缓存，避免每次启动先停代理、再联网下载订阅。订阅更新可在代理正常运行时执行。
+6. 从普通 LAN DNS 查询、连接日志核对 AI 实际走德国、默认实际走香港上海电信，不能只看分组名称。
 
-- 🚀 节点选择：默认自动测速，可手动选任意节点
-- ♻️ 自动测速：全部节点按延迟自动选
-- 🤖 AI：默认德国，可单选（德国/巴西/墨西哥/香港）
-- 🎬 流媒体：默认自动测速，可单选
+**设备自身开启 Shadowrocket、Clash、VPN 或浏览器代理时，先由设备选择出口。路由器不能从加密的客户端代理连接中重新识别 ChatGPT。** 测试路由器分流应使用不经过客户端代理的连接。
 
-## 规则
+## 规则来源与边界
 
-- AI（OpenAI/Claude/Gemini/Copilot 等，含 Grok、Perplexity、Mistral、Cursor 等补充域名）→ 🤖 AI
-- 流媒体（Netflix/Disney/YouTube/Spotify/HBO/PrimeVideo/Hulu/AppleTV/TikTok）→ 🎬 流媒体
-- 广告名单 → REJECT
-- 国内名单 + 中国 IP → 直连
-- 其余 → 🚀 节点选择
+- 国际 AI、国内域名、内网域名和国内 IP：[MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat)，mihomo 每日刷新 MRS。
+- 广告：[Loyalsoldier/clash-rules](https://github.com/Loyalsoldier/clash-rules)；Shadowrocket 使用对应的 [surge-rules](https://github.com/Loyalsoldier/surge-rules)。
+- 流媒体：[blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)。
 
-规则名单来自 blackmatrix7/ios_rule_script，客户端远程引用、自动更新。
+AI、流媒体优先于广告和国内名单，保护登录及资源请求。域名拦截不能保证过滤与正常内容共用域名的视频广告。规则命中不代表地区解锁或账号一定可用。不要将整个共享 CDN 或公共云 IP 段强制归入 AI。
+
+安装 PyYAML 后运行 `python3 validate_rules.py --online`。更新后同时核对来源、节点匹配和实际连接出口。
