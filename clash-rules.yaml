@@ -1,0 +1,219 @@
+# 分流规则配置（不含节点）—— 节点由 proxy-provider 从你的节点订阅拉取
+# 使用前：把下面 proxy-providers 里的 url 换成你自己的节点订阅地址
+mixed-port: 7890
+allow-lan: false
+mode: rule
+log-level: info
+ipv6: false
+dns:
+  enable: true
+  enhanced-mode: fake-ip
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - 223.5.5.5
+  fallback:
+    - https://dns.google/dns-query
+proxy-providers:
+  youngtree:
+    type: http
+    url: "https://example.com/REPLACE-WITH-YOUR-NODE-SUBSCRIPTION.txt"
+    interval: 86400
+    path: ./providers/youngtree.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+proxy-groups:
+  - name: 🚀 节点选择
+    type: select
+    proxies:
+      - ♻️ 自动测速
+    use:
+      - youngtree
+  - name: ♻️ 自动测速
+    type: url-test
+    use:
+      - youngtree
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+  - name: 🤖 AI
+    type: select
+    use:
+      - youngtree
+  - name: 🎬 流媒体
+    type: select
+    proxies:
+      - ♻️ 自动测速
+    use:
+      - youngtree
+rule-providers:
+  OpenAI:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.yaml"
+    path: ./ruleset/OpenAI.yaml
+    interval: 86400
+  Claude:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.yaml"
+    path: ./ruleset/Claude.yaml
+    interval: 86400
+  Gemini:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Gemini/Gemini.yaml"
+    path: ./ruleset/Gemini.yaml
+    interval: 86400
+  Copilot:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Copilot/Copilot.yaml"
+    path: ./ruleset/Copilot.yaml
+    interval: 86400
+  Netflix:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix.yaml"
+    path: ./ruleset/Netflix.yaml
+    interval: 86400
+  Disney:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Disney/Disney.yaml"
+    path: ./ruleset/Disney.yaml
+    interval: 86400
+  YouTube:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.yaml"
+    path: ./ruleset/YouTube.yaml
+    interval: 86400
+  Spotify:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.yaml"
+    path: ./ruleset/Spotify.yaml
+    interval: 86400
+  HBO:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/HBO/HBO.yaml"
+    path: ./ruleset/HBO.yaml
+    interval: 86400
+  PrimeVideo:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/PrimeVideo/PrimeVideo.yaml"
+    path: ./ruleset/PrimeVideo.yaml
+    interval: 86400
+  Hulu:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Hulu/Hulu.yaml"
+    path: ./ruleset/Hulu.yaml
+    interval: 86400
+  AppleTV:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AppleTV/AppleTV.yaml"
+    path: ./ruleset/AppleTV.yaml
+    interval: 86400
+  TikTok:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.yaml"
+    path: ./ruleset/TikTok.yaml
+    interval: 86400
+  Advertising:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Advertising/Advertising.yaml"
+    path: ./ruleset/Advertising.yaml
+    interval: 86400
+  China:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China.yaml"
+    path: ./ruleset/China.yaml
+    interval: 86400
+
+rules:
+  # ===== AI：blackmatrix7 名单（四大厂）=====
+  - RULE-SET,OpenAI,🤖 AI
+  - RULE-SET,Claude,🤖 AI
+  - RULE-SET,Gemini,🤖 AI
+  - RULE-SET,Copilot,🤖 AI
+  # ===== AI：补充域名（blackmatrix7 暂无名单的厂商与受限应用）=====
+  - DOMAIN-SUFFIX,grok.com,🤖 AI
+  - DOMAIN-SUFFIX,x.ai,🤖 AI
+  - DOMAIN-SUFFIX,perplexity.ai,🤖 AI
+  - DOMAIN-SUFFIX,pplx.ai,🤖 AI
+  - DOMAIN-SUFFIX,mistral.ai,🤖 AI
+  - DOMAIN-SUFFIX,meta.ai,🤖 AI
+  - DOMAIN-SUFFIX,poe.com,🤖 AI
+  - DOMAIN-SUFFIX,character.ai,🤖 AI
+  - DOMAIN-SUFFIX,huggingface.co,🤖 AI
+  - DOMAIN-SUFFIX,hf.co,🤖 AI
+  - DOMAIN-SUFFIX,midjourney.com,🤖 AI
+  - DOMAIN-SUFFIX,suno.com,🤖 AI
+  - DOMAIN-SUFFIX,suno.ai,🤖 AI
+  - DOMAIN-SUFFIX,runwayml.com,🤖 AI
+  - DOMAIN-SUFFIX,elevenlabs.io,🤖 AI
+  - DOMAIN-SUFFIX,cohere.ai,🤖 AI
+  - DOMAIN-SUFFIX,cohere.com,🤖 AI
+  - DOMAIN-SUFFIX,sora.com,🤖 AI
+  - DOMAIN-SUFFIX,genspark.ai,🤖 AI
+  - DOMAIN-SUFFIX,you.com,🤖 AI
+  - DOMAIN-SUFFIX,cursor.com,🤖 AI
+  - DOMAIN-SUFFIX,cursor.sh,🤖 AI
+  - DOMAIN-SUFFIX,codeium.com,🤖 AI
+  - DOMAIN-SUFFIX,windsurf.com,🤖 AI
+  - DOMAIN-SUFFIX,githubcopilot.com,🤖 AI
+  - DOMAIN-SUFFIX,pika.art,🤖 AI
+  - DOMAIN-SUFFIX,lumalabs.ai,🤖 AI
+  - DOMAIN-SUFFIX,heygen.com,🤖 AI
+  - DOMAIN-SUFFIX,udio.com,🤖 AI
+  - DOMAIN-SUFFIX,leonardo.ai,🤖 AI
+  - DOMAIN-SUFFIX,ideogram.ai,🤖 AI
+  - DOMAIN-SUFFIX,replicate.com,🤖 AI
+  - DOMAIN-SUFFIX,diabrowser.com,🤖 AI
+  - DOMAIN-SUFFIX,diacomputer.com,🤖 AI
+  - DOMAIN-SUFFIX,thebrowser.company,🤖 AI
+  - DOMAIN-SUFFIX,arc.net,🤖 AI
+  - DOMAIN,aistudio.google.com,🤖 AI
+  - DOMAIN,notebooklm.google.com,🤖 AI
+  - DOMAIN-SUFFIX,ai.google.dev,🤖 AI
+  # ===== 流媒体 =====
+  - RULE-SET,Netflix,🎬 流媒体
+  - RULE-SET,Disney,🎬 流媒体
+  - RULE-SET,YouTube,🎬 流媒体
+  - RULE-SET,Spotify,🎬 流媒体
+  - RULE-SET,HBO,🎬 流媒体
+  - RULE-SET,PrimeVideo,🎬 流媒体
+  - RULE-SET,Hulu,🎬 流媒体
+  - RULE-SET,AppleTV,🎬 流媒体
+  - RULE-SET,TikTok,🎬 流媒体
+  # ===== 广告拦截 =====
+  - RULE-SET,Advertising,REJECT
+  # ===== 国内直连 =====
+  - RULE-SET,China,DIRECT
+  - GEOIP,CN,DIRECT
+  # ===== 兜底 =====
+  - MATCH,🚀 节点选择
