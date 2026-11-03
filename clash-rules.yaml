@@ -1,52 +1,32 @@
-# 分流规则配置（不含节点）—— 节点由 proxy-provider 从你的节点订阅拉取
-# 使用前：把下面 proxy-providers 里的 url 换成你自己的节点订阅地址
-mixed-port: 7890
-allow-lan: false
-mode: rule
-log-level: info
-ipv6: false
-dns:
-  enable: true
-  enhanced-mode: fake-ip
-  nameserver:
-    - https://dns.alidns.com/dns-query
-    - 223.5.5.5
-  fallback:
-    - https://dns.google/dns-query
-proxy-providers:
-  youngtree:
-    type: http
-    url: "https://example.com/REPLACE-WITH-YOUR-NODE-SUBSCRIPTION.txt"
-    interval: 86400
-    path: ./providers/youngtree.yaml
-    health-check:
-      enable: true
-      url: http://www.gstatic.com/generate_204
-      interval: 300
+# 分流规则（不含节点、不含节点订阅地址）—— 覆写式用法
+# 先导入你自己的节点订阅，再把本文件作为「扩展/覆写配置」套上去（Clash Verge 全局扩展配置、Nikki mixin 等）。
+# 分组用 include-all-proxies 自动纳入当前订阅里的全部节点，不需要改任何地址。
+# 🤖 AI 默认德国：该组按名字列了本人订阅的 5 个节点（换节点时改这几行名字）；其余分组靠 include-all-proxies 自动纳入当前订阅的全部节点。
 proxy-groups:
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动测速
-    use:
-      - youngtree
+    include-all-proxies: true
   - name: ♻️ 自动测速
     type: url-test
-    use:
-      - youngtree
+    include-all-proxies: true
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
   - name: 🤖 AI
     type: select
-    use:
-      - youngtree
+    proxies:
+      - 🇩🇪 德国法兰克福 | 上海电信
+      - 🇧🇷 巴西圣保罗 | 上海电信
+      - 🇲🇽 墨西哥克雷塔罗 | 上海电信
+      - 🇭🇰 香港 | 南京移动01
+      - 🇭🇰 香港 | 上海电信02
   - name: 🎬 流媒体
     type: select
     proxies:
       - ♻️ 自动测速
-    use:
-      - youngtree
+    include-all-proxies: true
 rule-providers:
   OpenAI:
     type: http
